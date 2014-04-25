@@ -28,10 +28,17 @@ makeCacheMatrix <- function(x = matrix()) {
 cacheSolve <- function(x, ...) {
     inv <- x$getinverse() ## get current inverse cache value
     if (!is.null(inv)) { ## check did we already store the inverse
+        if (dim(inv) == c(1,1) && is.na(inv[1,1])) { ## check for the uninversable matrix cache
+            print("Matrix has no inverse") ## print message   
+        }
         return(inv) ## if we have cache - return the value and exit the function
     }
     data <- x$get() ## get the given matrix
-    inv <- solve(data) ## calculate the inverse
+    error <- function(e) { ## declare error handler function
+        print("Matrix has no inverse") ## print message
+        matrix() ## return empty matrix
+    }
+    inv <- tryCatch(solve(data), error = error) ## safety calculate the inverse
     x$setinverse(inv) ## save the inverse in the data container
     inv ## Return a matrix that is the inverse of 'x'
 }
